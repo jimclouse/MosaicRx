@@ -1,0 +1,306 @@
+ /* 
+  Z-INDEX ORDERING
+  10: text-size-changer;
+  30: feedback-form;
+  48: scrollbar wire
+  49: scrollbar
+  50: node hover
+  52: tooltip popup
+  53: search dropdown 
+  60: dark class - UI Block;
+
+  90: detail panel (0 initially);
+  91: close-panel (button);
+  92: panelhtml (content inside panel);
+
+*/
+#infovis-canvaswidget {
+  margin:25px 0 0 25px;
+}
+
+#companySearch {
+    position:relative;
+    z-index: 53;
+}
+/* waiting used for hourglass waiting image */
+#waiting {
+    height: 100%;
+    display: inline;
+    z-index: 90;
+}
+
+#detail-waiting {
+    display: none;
+    z-index: 90;
+}
+.ajax-loader {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    margin-left: -32px; /* -1 * image width / 2 */
+    margin-top: -32px;  /* -1 * image height / 2 */
+    display: block;     
+}
+
+.nodata {
+  position:absolute;
+  top:50%;left:50%;
+  margin-left:-160px;
+  margin-top:-25px;
+  width:320px;
+  height:50px;
+  display: none;
+  z-index:101;
+  font-family: Verdana;
+  font-weight: bold;
+  border: solid 1px lightgray;
+  background-color:white;
+  color:black;
+  padding: 5px;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  -khtml-border-radius: 5px;
+}
+
+/*****************
+ui components
+******************/
+#slider { margin: 10px; }
+#accordion-wrapper { width: 98%; }
+
+.chart-icon {
+  float:left;
+  width:60;
+}
+
+#darkClass {
+    background-color: #000;
+    opacity: 0.8;
+    filter:progid:DXImageTransform.Microsoft.Alpha(opacity=80);
+    display: none;
+    z-index: 60;
+    height:100%;
+    width:100%;
+    background: rgba(0,0,0,0.8);
+    background-repeat: no-repeat;
+    background-position: center;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+}
+
+#text-size-changer {
+  position: absolute;
+  z-index: 10;
+  bottom: 0px;
+  left: 0px;
+  color: #000;
+}
+
+#text-size-small {
+  font-size: 9px;
+}
+#text-size-normal {
+  font-size: 12px;
+}
+#text-size-big {
+  font-size: 15px;
+}
+
+#feedback-form {
+  position: absolute;
+  bottom: 0px;
+  right: 0px;
+  color: #000;
+  background-color: #fff;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  -khtml-border-radius: 5px;
+  border-radius: 5px;
+  z-index: 30;
+}
+
+
+/***********************
+Right container objects
+************************/
+
+
+
+#detailContainer {
+  margin-top: 5px;
+  display:none;
+}
+
+#expertDetailInner {
+  color: #000;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  -khtml-border-radius: 5px;
+  border-radius: 5px;
+  border: 1px solid #333;
+  background-color: #EDEDED;
+  padding: 2px;
+  padding-bottom: 10px;
+}
+
+#expertDetailInner .title {
+  font-size: 1.2em;
+  font-weight: bold;
+  color:#000;
+}
+
+
+#detailPanel {
+    display: none;
+    position: absolute;
+    left: 25%;
+    top: 20%;
+    -moz-border-radius: 10px;
+    -webkit-border-radius: 10px;
+    -webkit-box-shadow: 0 1px 3px #666;
+    border-radius: 10px;
+    border: 3px solid #000;
+    background: #fff;
+    margin: 0 auto;
+    width: 640px;
+    height: 480px;
+    z-index: 0;
+}
+
+#close-panel {
+  display: inline;
+  position: absolute;
+  right:0;
+  top:0;
+  width: 50px;
+  height: 50px;
+  z-index: 92;
+
+}
+#close-panel a {
+  border: 0;
+}
+#close-button {
+  width: 50px;
+  border: none;
+}
+
+#panelhtml {
+    position: relative;
+    padding: 25px;
+    width: 100%;
+    width: 590px;
+    height: 430px; /* MUST KEEP HEIGHT AND WIDTH IN HERE OR PIE CHART WONT SHOW*/ 
+    z-index: 91;
+}
+
+
+/***********************
+Node Styling 
+************************/
+.NONCM, .CM, .NONSTUDYCM, .LOCATION, .TRIAL, .root{
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    -khtml-border-radius: 3px;
+    border-radius: 3px;
+    border: 1px solid #111;
+    cursor:pointer;
+    padding:2px;
+    max-width:150px;
+    opacity: 0.9;
+    font-size:0.4em;
+    filter:progid:DXImageTransform.Microsoft.Alpha(opacity=90);
+}
+.root {
+  font-size:1.0em;
+  opacity: 1.0;
+  filter:progid:DXImageTransform.Microsoft.Alpha(opacity=100);
+}
+
+.NONCM:hover, .CM:hover, .NONSTUDYCM:hover, .LOCATION:hover, .TRIAL:hover {
+  font-size:0.8em;
+  opacity: 1.0;
+  filter:progid:DXImageTransform.Microsoft.Alpha(opacity=100);
+}
+
+.LOCATION{
+  background-color: #CCBB99;
+  color:#000000; 
+}
+.LOCATION:hover{
+  background-color: #CC9966;
+  z-index: 50;
+}
+
+.NONSTUDYCM{
+  background-color: #EBBED6;
+  color:#000000;
+}
+.NONSTUDYCM:hover {
+    background-color: #CF88AE;
+    z-index: 50;
+}
+
+.NONCM {
+  background-color: #6eb7eb;
+  color:#000000;
+}
+.NONCM:hover {
+  background-color: #62a3d1;
+  z-index: 50;}
+
+
+.root{
+  background-color: #DEBD62;
+  color:#000000;
+}
+.root:hover{
+  background-color: #E3C500;
+  z-index: 50;
+}
+
+.CM{
+  background-color: #BCC5E8;
+  color:#000000;
+}
+.CM:hover{
+  background-color: #4B68DB;
+  z-index: 50;
+}
+
+/* Relationship Type nodes */
+.TRIAL {
+  background-color: #BFDE97;
+  color:#000000;
+
+}
+.TRIAL:hover {
+  background-color: #9BBD6F;
+  z-index: 50;
+}
+
+
+/*****************
+Unused styles 
+******************/
+
+.contact{
+  background-color: #009933;
+  color:#ffffff;
+}
+
+.contact:hover{
+  background-color: #006B24;
+  z-index: 50;
+}
+
+
+.breadcrumbItem {
+    color: #000;
+    cursor: pointer;
+}
+
+.breadcrumbItem:hover {
+    color:#0000FF;
+}

@@ -1,0 +1,40 @@
+/*****************
+tooltip styling 
+******************/
+#tipPanel {
+    display:none; 
+    position: absolute;
+    z-index: 52;
+    /* background:url(http://jquerytools.org/media/img/tooltip/black_arrow_big.png);*/
+    background: #BFBFBF;
+    padding:6px;
+    font-size: 0.8em;
+    font-family: verdana, helvetica, sans-serif;
+    color:#000;
+    /* used for rounded corners */
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -khtml-border-radius: 5px;
+    border-radius: 5px;
+    border: 1px solid #000;
+    /* RGBa with 0.6 opacity */
+    background: rgba(176, 176, 176, 0.9);
+    filter:progid:DXImageTransform.Microsoft.Alpha(opacity=90);
+
+   	overflow: auto;
+   	min-width: 200px;
+    max-width: 250px;
+
+}
+#tooltipTitle {
+  font-size: 1.2em;
+  font-weight: bold;
+}
+#tipPanel a{
+  color:#000;
+}
+#tipPanel a:hover {
+  color:#0000FF;
+}
+
+#tipPanel a.toggler { display:block; margin:.5em .25em; }

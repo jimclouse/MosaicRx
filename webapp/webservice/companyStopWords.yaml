@@ -1,0 +1,15 @@
+# company name stop words
+# used for normalization of company names to assist in matching 
+# vendor comapny data to GLG company data
+# !!! NOTE !!!! do not add tabs before any stop word. The yaml parser will be unhappy
+stop-words: [
+"limited", "company", "corporation", "incorporated", "corp", "yk", "vzw", "vos", "vog", "vof", "uu", "unltd", "tu", "tk", "taa",
+"sab", "stg", "st", "sro", "srl", "spp", "spol", "spk", "spj", "spe", "spa", "sp", "snc", "sl", "ska", "sicav",
+"sicaf", "sgps", "sep", "se ", "sdn", "sd", "scs", "scop", "sce", "sca", "sasu", "sas", "sarl", "sae", "sa",
+"ry", "rp", "rlllp", "pvt", "pup", "pty", "pl", "peeec", "pc", "oyj", "oy", "ou", "ood", "ok", "ohg", "og",
+"oeg", "oe", "obee", "oao", "nv", "nl", "nk", "mtu", "mepe", "mbh", "ltda", "ltd", "lp", "lllp", "llc", "la",
+"ky", "ks", "kk", "kgaa", "kg", "keg", "kda", "kd", "is", "inc", "huf", "gsk", "gp", "gmk", "gmbh", "gk",
+"gesbr", "gbr", "gan", "fie", "ev", "eurl", "esv", "epe", "eoood", "eirl", "egen", "eg", "eeig", "eea", "ee",
+"ebvba", "ead", "doo", "dno", "dd", "cvoa", "cvba", "cv", "co", "crl", "bvba", "bv","bhd", "ay", "asbl", "aps",
+"ans", "amba", "akc", "ag", "ae", "adsitz", "ad", "abee", "ab", "aat", "ag", "plc", "llp", "pte"
+]

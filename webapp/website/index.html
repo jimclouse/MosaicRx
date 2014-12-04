@@ -1,0 +1,372 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>Mosaic - Beta</title>
+
+<!-- CSS Files -->
+<link type="text/css" href="./css/base.css" rel="stylesheet" />
+<link type="text/css" href="./css/mosaic.css" rel="stylesheet" />
+<link type="text/css" href="./css/basket.css" rel="stylesheet" />
+<link type="text/css" href="./css/toolTip.css" rel="stylesheet" />
+<link type="text/css" href="http://code.jquery.com/ui/1.8.18/themes/base/jquery-ui.css" rel="stylesheet"f media="all" />
+
+<!-- JIT Library File -->
+<script src="javascript/lib/excanvas.js" type="text/javascript"></script>
+<script src="javascript/lib/jit.js" type="text/javascript"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+<script src="http://code.jquery.com/ui/1.8.18/jquery-ui.min.js" type="text/javascript"></script>
+<script src="http://jquery-ui.googlecode.com/svn/tags/latest/external/jquery.bgiframe-2.1.2.js" type="text/javascript"></script>
+<script src="http://jquery-ui.googlecode.com/svn/tags/latest/ui/minified/i18n/jquery-ui-i18n.min.js" type="text/javascript"></script>
+<script src="javascript/lib/raphael-min.js" type="text/javascript"></script>
+<script src="javascript/lib/g.raphael-min.js" type="text/javascript"></script>
+<script src="javascript/lib/g.pie-min.js" type="text/javascript"></script>
+<script src="javascript/lib/jquery.cookie.js" type="text/javascript"></script>
+
+
+<script type="text/javascript">
+  (function($,sr){
+   
+    // debouncing function from John Hann
+    // http://unscriptable.com/index.php/2009/03/20/debouncing-javascript-methods/
+    var debounce = function (func, threshold, execAsap) {
+        var timeout;
+   
+        return function debounced () {
+            var obj = this, args = arguments;
+            function delayed () {
+                if (!execAsap)
+                    func.apply(obj, args);
+                timeout = null; 
+            };
+   
+            if (timeout)
+                clearTimeout(timeout);
+            else if (execAsap)
+                func.apply(obj, args);
+   
+            timeout = setTimeout(delayed, threshold || 100); 
+        };
+    }
+    // smartresize 
+    jQuery.fn[sr] = function(fn){  return fn ? this.bind('resize', debounce(fn)) : this.trigger(sr); };
+   
+  })(jQuery,'smartresize');
+
+  /* ########################
+  * Doc on ready
+  * ####################### */
+  $(document).ready(function() {
+      hyperTree.afterLoad = hyperTree_afterLoad;
+
+
+       hyperTree.initialize();
+
+      /* ########################
+      * ui slider component
+      * ####################### */
+      $("#slider").slider({ max: 200, min: 2, value:10, 
+            change: function(event, ui) { 
+                hyperTree.relationshipCount = ui.value;
+                reloadTree();
+            },
+            slide: function(event, ui) {
+              $(".ui-slider-handle").css("text-decoration", "none").css("text-align", "center").text(ui.value);
+            },
+            create: function(event, ui) {
+              ui.value = 10;
+              $(".ui-slider-handle").css("text-decoration", "none").css("text-align", "center").text(ui.value);
+            }
+      });
+      /* ########################
+      * ui accordion component
+      * ####################### */
+      $('.accordion .head').click(function() {
+          $(this).next().toggle();
+          return false;
+      }).next().hide();
+
+      basket.target = $('#expertBasket');
+      breadCrumb.target = $('#breadCrumb');
+      breadCrumb.refresh();
+
+  });
+  
+  /* ########################
+  * ui accordion
+  * ####################### */
+  $(function() {
+    $( "#accordion" ).accordion({
+      event: "mouseover",
+      autoHeight: false,
+      navigation: true
+    });
+  });
+  /* ########################
+  * hourglass methods
+  * ####################### */
+  var hideHourGlass = function() {
+    jQuery("#waiting").hide();
+  }
+  var showHourGlass = function() {
+    jQuery("#waiting").show();
+  }
+
+  /* ########################
+  * reloads the tree and changes the central node
+  ######################### */
+  var reloadTreeWithId = function(id) {
+        hyperTree.reset();
+        hyperTree.centralNodeId = id;
+        hyperTree.initialize();
+
+  }
+  /* ########################
+  * reloads the tree without changing the central node
+  ######################### */
+  var reloadTree = function() {
+      hyperTree.reset();
+      hyperTree.initialize();
+      breadCrumb.refresh();
+  }
+
+  /* ########################
+  * relationship filters ui component
+  * ####################### */
+  var loadRelationshipFilters = function(){
+    url = "/typefilter?callback=?"
+    $.getJSON(url, function(data) {
+        var formBuilder = "";
+        $.each(data.type_data, function(){
+          formBuilder = formBuilder + "<input type=checkbox name=cbox_typeFilter id=cbox_typeFilter value='" + this + "' checked='checked' onClick='javascript:resetFilters()'>&nbsp;" + this + "<br/>"
+         });
+        $('#relationshipFilters').html(formBuilder);
+        hyperTree.userFilterList = getFilters('type').join();
+        relationshipFilterLoaded = true;
+        initializeTree();
+    });
+  }
+
+  /* ########################
+  * continent filters ui component
+  * ####################### */
+  var loadContinentFilters = function(target){
+    url = "/continentfilter?callback=?"
+    $.getJSON(url, function(data) {
+        buildContinentFilters('continent', data);
+        hyperTree.continentFilterList = getFilters('continent').join();
+
+        buildContinentFilters('cmContinent', data);
+        hyperTree.cmContinentFilterList = getFilters('cmContinent').join();
+
+        continentFilterLoaded = true;
+    });
+  }
+
+  var buildContinentFilters = function(target, data){
+      var formBuilder = "<hr><div style='text-align:center;'>Continent</div>";
+      $.each(data.type_data, function(){
+        formBuilder = formBuilder + "<input type=checkbox name=cbox_" + target + "Filter id=cbox_" + target + "Filter value='" + this + "' checked='checked' onClick='javascript:resetFilters()'>&nbsp;" + this + "<br/>"
+       });
+      $('#' + target + 'Filters').html(formBuilder);
+  }
+
+  
+
+  var getParameterByName = function (name)
+  {
+    name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+    var regexS = "[\\?&]" + name + "=([^&#]*)";
+    var regex = new RegExp(regexS);
+    var results = regex.exec(window.location.search);
+    if(results == null)
+      return "";
+    else
+      return decodeURIComponent(results[1].replace(/\+/g, " "));
+  }
+
+  var hyperTree_afterLoad = function(node){
+    if (node.id == null){
+      $('#nodata').show();
+    }
+    else
+    {
+      $('#nodata').hide();
+    }
+  }
+
+
+  /* ########################
+  * returns array of checked type of filter options
+  * ####################### */
+  var getFilters = function(filterType) {
+    var filterSelection = new Array();
+    $("input:checkbox[name=cbox_" + filterType + "Filter]:checked").each(function()
+      {
+          filterSelection.push($(this).val());
+      });
+    $("select[name=ddl_" + filterType + "Filter] option:selected").each(function()
+      {
+          filterSelection.push($(this).val());
+      });
+    return filterSelection;
+  }
+
+  /* ########################
+  * returns array of checked filter options
+  * ####################### */
+  var resetFilters = function() {
+      //jQuery("#waiting").show();
+      hyperTree.userFilterList = getFilters('type').join();
+      hyperTree.companyFilterList = getFilters('company').join();
+      hyperTree.personFilterList = getFilters('person').join();
+      hyperTree.nodeFilterList = getFilters('node').join();
+      hyperTree.continentFilterList = getFilters('continent').join();
+      hyperTree.cmContinentFilterList = getFilters('cmContinent').join();
+      reloadTree();
+  }
+
+  /* ########################
+  * returns array of checked filter options
+  * ####################### */
+  accessibility = {
+    cssList: ['person', 'organization', 'group', 'partygroup', 'company', 'client', 'councilmember', 'contact', 'councilLead', 'councilApplicant'],
+    normalFont:function() {
+      this.changeFontSize("0.8em");
+    },
+    smallFont:function(){
+      this.changeFontSize("0.6em");
+    },
+    bigFont:function(){
+      this.changeFontSize("1.0em");
+    },
+    changeFontSize:function(size){
+      hyperTree.user_font_size = size;
+      for(i = 0; i<this.cssList.length; i++) {
+          $("." + this.cssList[i]).css("font-size", size);
+        }
+    }
+  }
+
+/* #######################
+* reloads the graph when the browser window size changes
+* ###################### */
+  // usage:
+
+if ($.browser.msie && jQuery.browser.version == '8.0')
+  window.onresize = reloadTree;
+else{
+  $(window).smartresize(reloadTree);
+}
+
+</script>
+
+<script type="text/javascript" src="javascript/config.js"></script>
+<script type="text/javascript" src="javascript/visualize.js"></script>
+<script type="text/javascript" src="javascript/basket.js"></script>
+<script type="text/javascript" src="javascript/search_component.js"></script>
+<script type="text/javascript" src="javascript/detailPanel.js"></script>
+<script type="text/javascript" src="javascript/mosaic-charts.js"></script>
+<script type="text/javascript" src="javascript/breadCrumb.js"></script>
+
+</head>
+
+<body>
+<div id="darkClass"></div>
+<div id="container">  
+
+
+
+  <div id="center-container">
+
+      <div id="detailPanel">
+          <div id="panelhtml"></div>
+          <div id="close-panel"><a href='javascript:DetailPanel.closePanel();'><img src='../images/close-button.png' id='close-button'></a></div>
+      </div>
+
+      <div id="waiting">
+          <img src="/images/ajax-loader.gif" class="ajax-loader">
+      </div>
+      <div id="infovis"></div>    
+      <div id="tipPanel"></div>
+     
+      <!--div id="text-size-changer">Text Size:  <a href="javascript:accessibility.smallFont();"><span id="text-size-small">Aa</span></a> | 
+                                              <a href="javascript:accessibility.normalFont();"><span id="text-size-normal">Aa</span></a> | 
+                                              <a href="javascript:accessibility.bigFont();"><span id="text-size-big">Aa</span></a>
+      </div-->
+      <div id="nodata" class="nodata">
+          The item you are looking for was not found.<br><br>
+          Please try a <a href="javascript:document.getElementById('companySearch').focus();">search</a>.
+      </div>
+  </div>
+<div id="right-container">
+  <strong>Mosaic Rx (proof of concept)</strong><br/>
+  <hr>
+  <strong>Graph Node Key:</strong><br/>
+  <div><div class="CM" style="width:20px;float:left;">&nbsp;</div>&nbsp;Council Member in Trial</div><br/>
+  <div><div class="NONCM" style="width:20px;float:left;">&nbsp;</div>&nbsp;Non Council Member</div><br/>
+  <div><div class="NONSTUDYCM" style="width:20px;float:left;">&nbsp;</div>&nbsp;Council Member not in Trial</div><br/>
+  <div><div class="TRIAL" style="width:20px;float:left;">&nbsp;</div>&nbsp;Clinical Trial</div><br/>
+  <div><div class="LOCATION" style="width:20px;float:left;">&nbsp;</div>&nbsp;Location</div><br/>
+</div>
+ 
+</div> <!-- end main container -->
+
+<!-- begin tooltip divs -->
+<div id="councilMemberToolTip" style="display:none">
+    <span id="tooltipTitle"><a href="http://vega.glgroup.com/Experts/vega/councilmember/AdvisorDetails.aspx?cmid=_SOURCE_ID_" target="_new">NODE_NAME</a></span><br/>
+    <br/>
+    <input type="button" value="Add to Consultation" onClick="window.open('http://vega.glgroup.com/Consult/Meeting/AddToMeeting.aspx?ids=_SOURCE_ID_')">
+</div>
+<div id="organizationToolTip" style="display:none">
+    <span id="tooltipTitle"><a href="http://VEGA_URL/vega/company/Details.aspx?CID=SOURCE_ID" target="_new">NODE_NAME</a></span><br/>
+    TICKER_DATA
+    Continent: CONTINENT<br>
+    DEBUG_INFO
+    <br/>
+</div>
+<div id="applicantToolTip" style="display:none">
+    <span id="tooltipTitle"><a href="http://VEGA_URL/vega/RecruitApplicantDetail.aspx?applicantIds=SOURCE_ID" target="_new">NODE_NAME</a></span><br/>
+    JOB_HISTORY
+    Continent: CONTINENT<br>
+    DEBUG_INFO
+    <br/>
+</div>
+<div id="trialToolTip" style="display:none">
+    <span id="tooltipTitle"><a href="http://clinicaltrials.gov/show/_TRIALID_" target="_new">NODE_NAME</a></span><br/>
+    <br/>
+</div>
+<div id="personToolTip" style="display:none">
+    <span id="tooltipTitle">NODE_NAME</span><br/>
+    Continent: CONTINENT<br>
+    DEBUG_INFO
+    <br/>
+</div>
+
+<div id="customersToolTip" style="display:none">
+    <img src="images/chart-icon.png" class="chart-icon">
+    <span id="tooltipTitle">NODE_NAME</a></span><br/>
+    <a href="javascript:loadPieChart('NODE_NAME');">See Revenue<br/>Percentage Statistics</a>
+</div>
+<div id="customersNoDataToolTip" style="display:none">
+    No Revenue Percentage Statistics Available
+</div>
+
+<!-- end tooltip divs -->
+
+<!--div id="expertDetail">
+    <div id="expertDetailInner">
+      <div class="title">_NAME_</div><br/>
+      <a href="http://_VEGA_URL_/Experts/vega/councilmember/AdvisorDetails.aspx?cmid=_SOURCE_ID_" target="_new">Show in Vega</a><br/>
+      _JOB_HISTORY_
+       <div class="addButtons">
+          <input type="button" value="Add to Basket" onClick="basket.add(_SOURCE_ID_, _NODE_ID_, '_NAME_');">
+          <input type="button" value="Add to Consultation" onClick="window.open('http://_VEGA_URL_/Consult/Meeting/AddToMeeting.aspx?ids=_SOURCE_ID_')">
+      </div>
+      _BIO_
+    </div>
+</div-->
+
+
+</body>
+</html>

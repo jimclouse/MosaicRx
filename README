@@ -1,0 +1,7 @@
+This app was a super quick POC I did with Brant to take the initial mosaic
+application and visualize healthcare data. Its sorely lacking any server setup
+scripts. It was built on the same box we built mosaic on, so you could install the data warehouse or visualize app and you'd have what's needed to run this, but you'd also have alot of other junk you wouldn't need.
+
+I've got the app running on a machine in the Boston office and if it goes anywhere, we'll build out the makefile.
+
+Jim
